@@ -7,4 +7,5 @@ import supabaseController from '../controllers/supabase.controller'
 module.exports = (app: Application) => {
   app.post('/api/upload', upload.single('video'), supabaseController.uploadVideo)
   app.get('/api/buckets', supabaseController.listBuckets)
+  app.delete('/api/emptyBucket', supabaseController.emptyBucket)
 }

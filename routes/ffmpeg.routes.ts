@@ -2,8 +2,10 @@ import { Application } from 'express'
 import ffmpegController from '../controllers/ffmpeg.controller'
 import multer from 'multer'
 
+import { MAX_FILE_SIZE } from '../constants/multer.constant'
+
 const upload = multer({
-  limits: { fileSize: 25 * 1024 * 1024 }, // Individual fileSize should be <= 25MB
+  limits: { fileSize: MAX_FILE_SIZE * 1024 * 1024 }, // Individual fileSize should be <= 25MB
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
       cb(null, 'uploads/')
