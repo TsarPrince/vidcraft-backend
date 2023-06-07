@@ -26,7 +26,7 @@ const mergeVideo = async (req: Request, res: Response) => {
     const promise = new Promise<string>((resolve, reject) => {
 
       // 1. trim first TIME_DURATION seconds of both input files
-      // 2. merge to single video file
+      // 2. merge to a single video file
       ffmpeg()
         .input(prePath)
         .inputOptions([`-t ${TIME_DURATION}`])
@@ -59,6 +59,7 @@ const mergeVideo = async (req: Request, res: Response) => {
             .on('start', () => { console.log(`Adding watermark to ${preFileName} + ${inputFileName}`) })
             .on('error', reject)
             .on('end', async () => {
+
               // 4. Upload result to supabase storage
               const data = await uploadVideo(outputPath, outputFile, 'video/mp4')
               fs.unlinkSync(outputPath)
