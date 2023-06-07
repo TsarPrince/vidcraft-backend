@@ -1,0 +1,76 @@
+Times table.mp4
+{
+  format: 'mov,mp4,m4a,3gp,3g2,mj2',
+  audio: 'aac (LC) (mp4a / 0x6134706D)',
+  video: 'h264 (Main) (avc1 / 0x31637661)',
+  duration: '00:00:27.41',
+  video_details: [
+    'h264 (Main) (avc1 / 0x31637661)',
+    'yuv420p',
+    '1920x1032 [SAR 1:1 DAR 80:43]',
+    '4451 kb/s',
+    '30 fps',
+    '30 tbr',
+    '30k tbn',
+    '60 tbc (default)'
+  ],
+  audio_details: [
+    'aac (LC) (mp4a / 0x6134706D)',
+    '48000 Hz',
+    'stereo',
+    'fltp',
+    '117 kb/s (default)'
+  ]
+}
+
+Flying Vigilante - Trim.mp4
+{
+  format: 'mov,mp4,m4a,3gp,3g2,mj2',
+  audio: 'aac (LC) (mp4a / 0x6134706D)',
+  video: 'h264 (Main) (avc1 / 0x31637661)',
+  duration: '00:00:01.96',
+  video_details: [
+    'h264 (Main) (avc1 / 0x31637661)',
+    'yuv420p(tv',
+    'unknown/reserved/reserved)',
+    '1920x1080 [SAR 1:1 DAR 16:9]',
+    '10545 kb/s',
+    '30.01 fps',
+    '29.89 tbr',
+    '29887 tbn',
+    '59.77 tbc (default)'
+  ],
+  audio_details: [
+    'aac (LC) (mp4a / 0x6134706D)',
+    '48000 Hz',
+    'stereo',
+    'fltp',
+    '129 kb/s (default)'
+  ]
+}
+
+Planet.mp4
+{
+  format: 'mov,mp4,m4a,3gp,3g2,mj2',
+  audio: 'aac (LC) (mp4a / 0x6134706D)',
+  video: 'h264 (Main) (avc1 / 0x31637661)',
+  duration: '00:00:39.02',
+  video_details: [
+    'h264 (Main) (avc1 / 0x31637661)',
+    'yuv420p',
+    '1920x1032 [SAR 1:1 DAR 80:43]',
+    '3491 kb/s',
+    '30 fps',
+    '30 tbr',
+    '30k tbn',
+    '60 tbc (default)'
+  ],
+  audio_details: [
+    'aac (LC) (mp4a / 0x6134706D)',
+    '48000 Hz',
+    'stereo',
+    'fltp',
+    '117 kb/s (default)'
+  ]
+}
+Video processed!
