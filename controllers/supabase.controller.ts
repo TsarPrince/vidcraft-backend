@@ -2,8 +2,6 @@ import { Request, Response } from 'express'
 import supabase from '../config/db.config'
 import fs from 'fs'
 
-import { Bucket } from '@supabase/storage-js'
-
 import ApiResponse from '../types/Response.type'
 
 interface UploadSuccessResponse extends ApiResponse {
@@ -12,9 +10,7 @@ interface UploadSuccessResponse extends ApiResponse {
   }
 }
 
-interface ListBucketResponse extends ApiResponse {
-  data: Bucket[]
-}
+const SUPABASE_BUCKET_NAME = process.env.SUPABASE_BUCKET_NAME
 
 const uploadVideo = async (req: Request, res: Response) => {
   const file = req.file
@@ -22,7 +18,7 @@ const uploadVideo = async (req: Request, res: Response) => {
     const { originalname, path, mimetype } = file
     const newFileName = Date.now() + '-' + originalname
     const fileBuffer = fs.readFileSync(path)
-    const { data, error } = await supabase.storage.from('video-bucket').upload(newFileName, fileBuffer, {
+    const { data, error } = await supabase.storage.from(SUPABASE_BUCKET_NAME).upload(newFileName, fileBuffer, {
       // multer renames the file to prevent naming conflicts
       // pass in content type explicitly for supabase
       contentType: mimetype
@@ -56,31 +52,9 @@ const uploadVideo = async (req: Request, res: Response) => {
   }
 }
 
-const listBuckets = async (_: Request, res: Response) => {
-  try {
-    const { data, error } = await supabase.storage.listBuckets()
-    console.log(data)
-
-    if (error) {
-      throw new Error(error.message)
-    }
-    const json: ListBucketResponse = { message: 'success', data, error: null }
-    res.status(200).json(json)
-
-  } catch (error) {
-    console.error(error)
-    const json: ApiResponse = {
-      message: error.message,
-      data: null,
-      error: 'Failed to fetch bucket items',
-    }
-    res.status(500).json(json)
-  }
-}
-
 const emptyBucket = async (_: Request, res: Response) => {
   try {
-    const { data, error } = await supabase.storage.emptyBucket('video-bucket')
+    const { data, error } = await supabase.storage.emptyBucket(SUPABASE_BUCKET_NAME)
     console.log(data)
 
     if (error) {
@@ -107,6 +81,5 @@ const emptyBucket = async (_: Request, res: Response) => {
 
 export default {
   uploadVideo,
-  listBuckets,
   emptyBucket
 }

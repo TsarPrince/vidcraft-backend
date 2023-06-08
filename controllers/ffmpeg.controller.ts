@@ -4,6 +4,8 @@ import { join } from 'path'
 import fs from 'fs'
 import ApiResponse from '../types/Response.type'
 import uploadVideo from '../utils/upload'
+import downloadVideo from '../utils/fetch'
+import streamifier from 'streamifier'
 
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path
 const ffprobePath = require('@ffprobe-installer/ffprobe').path
@@ -25,38 +27,44 @@ interface GetMetadataResponse extends ApiResponse {
 }
 
 const mergeVideo = async (req: Request, res: Response) => {
-  const files = req.files as { [fieldname: string]: Express.Multer.File[] }
+
+  let filePath1: string, filePath2: string, filePath3: string
   try {
+    const { id1, id2 } = req.body
 
-    const preFile = files.preFile
-    const inputFile = files.inputFile
-
-    const { path: prePath, originalname: preFileName } = preFile[0]
-    const { path: inputPath, originalname: inputFileName } = inputFile[0]
+    const blob1 = await downloadVideo(id1)
+    const blob2 = await downloadVideo(id2)
+    const buffer1 = Buffer.from(await blob1.arrayBuffer())
+    const buffer2 = Buffer.from(await blob2.arrayBuffer())
+    filePath1 = join(FOLDERS.TEMP, 'file1.mp4')
+    filePath2 = join(FOLDERS.TEMP, 'file2.mp4')
+    fs.writeFileSync(filePath1, buffer1)
+    fs.writeFileSync(filePath2, buffer2)
 
     const promise = new Promise<string>((resolve, reject) => {
 
       // 1. trim first TIME_DURATION seconds of both input files
       // 2. merge to a single video file
+      filePath3 = join(FOLDERS.OUTPUT, 'file3.mp4')
       ffmpeg()
-        .input(prePath)
+        .input(filePath1)
         .inputOptions([`-t ${TIME_DURATION}`])
-        .input(inputPath)
+        .input(filePath2)
         .inputOptions([`-t ${TIME_DURATION}`])
-        .mergeToFile(join(FOLDERS.OUTPUT, inputFileName), FOLDERS.TEMP)
+        .mergeToFile(filePath3, FOLDERS.TEMP)
 
         .on('start', () => {
-          console.log(`Trimming and merging ${preFileName} + ${inputFileName}`)
+          console.log(`Trimming and merging ${id1} + ${id2}`)
         })
         .on('error', reject)
         .on('end', () => {
 
-          const outputFile = 'PROCESSED-' + Date.now() + '-' + preFileName + '-' + inputFileName
+          const outputFile = 'PROCESSED-' + Date.now() + '-' + id1 + '-' + id2 + '.mp4'
           const outputPath = join(FOLDERS.OUTPUT, outputFile)
 
           // 3. add watermark after trimming and merging videos
           ffmpeg()
-            .input(join(FOLDERS.OUTPUT, inputFileName))
+            .input(filePath3)
             .input(WATERMARK_PATH)
 
             .complexFilter([{
@@ -66,7 +74,7 @@ const mergeVideo = async (req: Request, res: Response) => {
 
             .saveToFile(outputPath)
 
-            .on('start', () => { console.log(`Adding watermark to ${preFileName} + ${inputFileName}`) })
+            .on('start', () => { console.log(`Adding watermark to ${id1} + ${id2}`) })
             .on('error', reject)
             .on('end', async () => {
 
@@ -99,22 +107,24 @@ const mergeVideo = async (req: Request, res: Response) => {
     res.status(500).json(json)
   } finally {
     // delete files after merge
-    if (files) {
-      const preFile = files.preFile
-      const inputFile = files.inputFile
-      const prePath = preFile[0].path
-      const inputPath = inputFile[0].path
-      fs.unlinkSync(prePath)
-      fs.unlinkSync(inputPath)
-    }
+    if (filePath1) fs.unlinkSync(filePath1)
+    if (filePath2) fs.unlinkSync(filePath2)
+    if (filePath3) fs.unlinkSync(filePath3)
   }
 }
 
 
 const getMetadata = async (req: Request, res: Response) => {
-  const file = req.file
+  let filePath: string
   try {
-    const inputPath = file.path
+    const { id } = req.body
+
+    const blob = await downloadVideo(id)
+    const buffer = Buffer.from(await blob.arrayBuffer())
+    filePath = join(FOLDERS.TEMP, 'file.mp4')
+    fs.writeFileSync(filePath, buffer)
+
+    const inputPath = filePath
     const promise = new Promise<ffmpeg.FfprobeData>((resolve, reject) => {
       ffmpeg
         .ffprobe(inputPath, (err, metadata) => {
@@ -144,8 +154,8 @@ const getMetadata = async (req: Request, res: Response) => {
 
   } finally {
     // delete files after usage
-    if (file) {
-      fs.unlinkSync(file.path)
+    if (filePath) {
+      fs.unlinkSync(filePath)
     }
   }
 }
