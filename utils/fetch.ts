@@ -5,10 +5,11 @@ const SUPABASE_BUCKET_NAME = process.env.SUPABASE_BUCKET_NAME
 const downloadVideo = async (id: string) => {
   return new Promise<Blob>(async (resolve, reject) => {
     const { data: filesData, error: listError } = await supabase.storage.from(SUPABASE_BUCKET_NAME).list()
-    console.log('Fetching... ' + id)
+    console.log('\n\n\nFetching... ' + id + '\n\n\n')
 
     let fileName: string
     filesData.forEach((file) => {
+      console.log(file.id)
       if (file.id === id) {
         fileName = file.name
       }
