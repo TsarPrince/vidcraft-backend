@@ -14,6 +14,12 @@ import { TIME_DURATION, FOLDERS, WATERMARK_PATH } from '../constants/ffmpeg.cons
 ffmpeg.setFfmpegPath(ffmpegPath)
 ffmpeg.setFfprobePath(ffprobePath)
 
+interface MergeVideoResponse extends ApiResponse {
+  data: {
+    fileName: string
+  }
+}
+
 interface GetMetadataResponse extends ApiResponse {
   data: ffmpeg.FfprobeData
 }
@@ -74,9 +80,11 @@ const mergeVideo = async (req: Request, res: Response) => {
     })
     const path = await promise
 
-    const json: ApiResponse = {
+    const json: MergeVideoResponse = {
       message: 'Video processed successfully',
-      data: path,
+      data: {
+        fileName: path
+      },
       error: null
     }
     res.status(200).json(json)
