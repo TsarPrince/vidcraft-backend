@@ -6,8 +6,7 @@
   "scripts": {
     "start": "ts-node index.ts",
     "dev": "nodemon index.ts",
-    "ts": "tsc -p temp.ts",
-    "preinstall": "mkdirp output && mkdirp ffmpeg/input && mkdirp ffmpeg/output && mkdirp ffmpeg/temp"
+    "ts": "tsc -p temp.ts"
   },
   "keywords": [],
   "author": "",
