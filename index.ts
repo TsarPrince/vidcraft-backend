@@ -28,7 +28,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     // Other error types
     res.status(500).json({ message: 'Internal server error.' });
   }
-});
+})
 
 
 app.listen(PORT, () => {

@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
+    "prod": "tsc && node dist/index.js",
     "dev": "nodemon index.ts",
     "ts": "tsc -p temp.ts"
   },

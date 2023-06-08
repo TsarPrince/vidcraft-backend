@@ -5,13 +5,13 @@ import fs from 'fs'
 import ApiResponse from '../types/Response.type'
 import uploadVideo from '../utils/upload'
 import downloadVideo from '../utils/fetch'
-import streamifier from 'streamifier'
 
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path
 const ffprobePath = require('@ffprobe-installer/ffprobe').path
 
 import { TIME_DURATION, FOLDERS, WATERMARK_PATH } from '../constants/ffmpeg.constant'
 
+const SUPABASE_VIDEO_URL = process.env.SUPABASE_VIDEO_URL
 
 ffmpeg.setFfmpegPath(ffmpegPath)
 ffmpeg.setFfprobePath(ffprobePath)
@@ -19,6 +19,7 @@ ffmpeg.setFfprobePath(ffprobePath)
 interface MergeVideoResponse extends ApiResponse {
   data: {
     fileName: string
+    url: string
   }
 }
 
@@ -91,7 +92,7 @@ const mergeVideo = async (req: Request, res: Response) => {
     const json: MergeVideoResponse = {
       message: 'Video processed successfully',
       data: {
-        fileName: path
+        fileName: path, url: `${SUPABASE_VIDEO_URL}/${path}`
       },
       error: null
     }

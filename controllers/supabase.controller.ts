@@ -7,10 +7,12 @@ import ApiResponse from '../types/Response.type'
 interface UploadSuccessResponse extends ApiResponse {
   data: {
     path: string
+    id: string
   }
 }
 
 const SUPABASE_BUCKET_NAME = process.env.SUPABASE_BUCKET_NAME
+const SUPABASE_VIDEO_URL = process.env.SUPABASE_VIDEO_URL
 
 const uploadVideo = async (req: Request, res: Response) => {
   const file = req.file
@@ -28,9 +30,20 @@ const uploadVideo = async (req: Request, res: Response) => {
       throw new Error(error.message)
     }
 
+    // fetch the id of the uploaded file
+    const { data: filesData, error: listError } = await supabase.storage.from(SUPABASE_BUCKET_NAME).list()
+    let id: string
+    filesData.forEach((file) => {
+      if (file.name === newFileName) {
+        id = file.id
+      }
+    })
+
     const json: UploadSuccessResponse = {
       message: 'Video uploaded successfully',
-      data,
+      data: {
+        ...data, id
+      },
       error: null
     }
     res.status(200).json(json)

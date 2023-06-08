@@ -9,7 +9,7 @@
   ],
   "servers": [
     {
-      "url": "https://vidcraft-backend.onrender.com/"
+      "url": "http://localhost:5000/"
     }
   ],
   "paths": {
@@ -188,7 +188,8 @@
           "data": {
             "type": "object",
             "example": {
-              "path": "1686243841037-Flying Vigilante - Trim.mp4"
+              "path": "1686243841037-Flying Vigilante - Trim.mp4",
+              "id": "1ed28eac-49b4-4611-90a6-3da2e659bfaf"
             }
           },
           "error": {
@@ -218,7 +219,8 @@
           "data": {
             "type": "object",
             "example": {
-              "fileName": "merged/PROCESSED-1686237727831-8347fe42-5528-450f-9427-4c0748d19aa7-425f00f7-d76b-443f-8a87-34ed89aee3d1.mp4"
+              "fileName": "merged/PROCESSED-1686237727831-8347fe42-5528-450f-9427-4c0748d19aa7-425f00f7-d76b-443f-8a87-34ed89aee3d1.mp4",
+              "url": "https://yichkqwdoyvympyuddes.supabase.co/storage/v1/object/public/video-bucket/Flying%20Vigilante%20-%20Trim.mp4"
             }
           },
           "error": {

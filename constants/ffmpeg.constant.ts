@@ -1,6 +1,6 @@
 import { join } from 'path'
 
-const TIME_DURATION = 5 // seconds
+const TIME_DURATION = 30 // seconds
 
 const FOLDERS = {
   INPUT: './ffmpeg/input',
