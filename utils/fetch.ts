@@ -6,6 +6,7 @@ const downloadVideo = async (id: string) => {
   return new Promise<Blob>(async (resolve, reject) => {
     const { data: filesData, error: listError } = await supabase.storage.from(SUPABASE_BUCKET_NAME).list()
     console.log('\n\n\nFetching... ' + id + '\n\n\n')
+    console.log({ filesData, listError })
 
     let fileName: string
     filesData.forEach((file) => {
