@@ -2,6 +2,20 @@ import { Request, Response } from 'express'
 import supabase from '../config/db.config'
 import fs from 'fs'
 
+import { Bucket } from '@supabase/storage-js'
+
+import ApiResponse from '../types/Response.type'
+
+interface UploadSuccessResponse extends ApiResponse {
+  data: {
+    path: string
+  }
+}
+
+interface ListBucketResponse extends ApiResponse {
+  data: Bucket[]
+}
+
 const uploadVideo = async (req: Request, res: Response) => {
   const file = req.file
   try {
@@ -18,10 +32,22 @@ const uploadVideo = async (req: Request, res: Response) => {
       throw new Error(error.message)
     }
 
-    res.status(200).json({ message: 'Video uploaded successfully', data })
+    const json: UploadSuccessResponse = {
+      message: 'Video uploaded successfully',
+      data,
+      error: null
+    }
+    res.status(200).json(json)
+
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: 'Failed to upload video', message: error.message })
+    const json: ApiResponse = {
+      message: error.message,
+      data: null,
+      error: 'Failed to upload video',
+    }
+    res.status(500).json(json)
+
   } finally {
     // Delete the file from the server
     if (file) {
@@ -38,11 +64,17 @@ const listBuckets = async (_: Request, res: Response) => {
     if (error) {
       throw new Error(error.message)
     }
+    const json: ListBucketResponse = { message: 'success', data, error: null }
+    res.status(200).json(json)
 
-    res.status(200).json({ message: 'success', data })
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: 'Failed' })
+    const json: ApiResponse = {
+      message: error.message,
+      data: null,
+      error: 'Failed to fetch bucket items',
+    }
+    res.status(500).json(json)
   }
 }
 
@@ -55,10 +87,21 @@ const emptyBucket = async (_: Request, res: Response) => {
       throw new Error(error.message)
     }
 
-    res.status(200).json({ message: 'success', data })
+    const json: ApiResponse = {
+      message: 'Bucket emptied successfully',
+      data,
+      error: null,
+    }
+    res.status(200).json(json)
+
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: 'Failed' })
+    const json: ApiResponse = {
+      message: error.message,
+      data: null,
+      error: 'Failed to fetch bucket items',
+    }
+    res.status(500).json(json)
   }
 }
 

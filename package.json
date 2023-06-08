@@ -7,7 +7,7 @@
     "start": "ts-node index.ts",
     "dev": "nodemon index.ts",
     "ts": "tsc -p temp.ts",
-    "preinstall": "mkdirp preroll && mkdirp input && mkdirp output && mkdirp temp"
+    "preinstall": "mkdirp output && mkdirp ffmpeg/input && mkdirp ffmpeg/output && mkdirp ffmpeg/temp"
   },
   "keywords": [],
   "author": "",

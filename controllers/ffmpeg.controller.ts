@@ -2,16 +2,21 @@ import { Request, Response } from 'express'
 import ffmpeg from 'fluent-ffmpeg'
 import { join } from 'path'
 import fs from 'fs'
+import ApiResponse from '../types/Response.type'
+import uploadVideo from '../utils/upload'
 
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path
 const ffprobePath = require('@ffprobe-installer/ffprobe').path
 
 import { TIME_DURATION, FOLDERS, WATERMARK_PATH } from '../constants/ffmpeg.constant'
-import uploadVideo from '../utils/upload'
 
 
 ffmpeg.setFfmpegPath(ffmpegPath)
 ffmpeg.setFfprobePath(ffprobePath)
+
+interface GetMetadataResponse extends ApiResponse {
+  data: ffmpeg.FfprobeData
+}
 
 const mergeVideo = async (req: Request, res: Response) => {
   const files = req.files as { [fieldname: string]: Express.Multer.File[] }
@@ -32,12 +37,11 @@ const mergeVideo = async (req: Request, res: Response) => {
         .inputOptions([`-t ${TIME_DURATION}`])
         .input(inputPath)
         .inputOptions([`-t ${TIME_DURATION}`])
-
         .mergeToFile(join(FOLDERS.OUTPUT, inputFileName), FOLDERS.TEMP)
+
         .on('start', () => {
           console.log(`Trimming and merging ${preFileName} + ${inputFileName}`)
         })
-
         .on('error', reject)
         .on('end', () => {
 
@@ -69,11 +73,22 @@ const mergeVideo = async (req: Request, res: Response) => {
         })
     })
     const path = await promise
-    res.status(200).json({ message: path })
+
+    const json: ApiResponse = {
+      message: 'Video processed successfully',
+      data: path,
+      error: null
+    }
+    res.status(200).json(json)
 
   } catch (err) {
     console.log(err)
-    res.status(500).json({ error: 'Failed to merge video', message: err.message })
+    const json: ApiResponse = {
+      message: err.message,
+      data: null,
+      error: 'Failed to merge video',
+    }
+    res.status(500).json(json)
   } finally {
     // delete files after merge
     if (files) {
@@ -103,11 +118,22 @@ const getMetadata = async (req: Request, res: Response) => {
         })
     })
     const data = await promise
-    res.status(200).json({ message: 'Codecs processed!', data })
+    const json: GetMetadataResponse = {
+      message: 'Codecs processed!',
+      data,
+      error: null
+    }
+    res.status(200).json(json)
 
   } catch (err) {
     console.log(err)
-    res.status(500).json({ error: 'Failed to fetch codec', message: err.message })
+    const json: ApiResponse = {
+      error: 'Failed to fetch codec',
+      data: null,
+      message: err.message
+    }
+    res.status(500).json(json)
+
   } finally {
     // delete files after usage
     if (file) {
