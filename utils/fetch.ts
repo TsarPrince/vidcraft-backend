@@ -4,7 +4,7 @@ const SUPABASE_BUCKET_NAME = process.env.SUPABASE_BUCKET_NAME
 
 const downloadVideo = async (id: string) => {
   return new Promise<Blob>(async (resolve, reject) => {
-    const { data: filesData, error: listError } = await supabase.storage.from(SUPABASE_BUCKET_NAME).list()
+    const { data: filesData, error: listError } = await supabase.storage.from(SUPABASE_BUCKET_NAME).list(null, { limit: 100 })
     console.log('\n\n\nFetching... ' + id + '\n\n\n')
     console.log({ filesData, listError })
 
