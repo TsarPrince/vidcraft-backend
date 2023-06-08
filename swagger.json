@@ -9,7 +9,7 @@
   ],
   "servers": [
     {
-      "url": "http://localhost:5000/"
+      "url": "https://vidcraft-backend.onrender.com/"
     }
   ],
   "paths": {
