@@ -5,8 +5,6 @@ import fs from 'fs'
 import ApiResponse from '../types/Response.type'
 import uploadVideo from '../utils/upload'
 import downloadVideo from '../utils/fetch'
-import concat from 'ffmpeg-concat'
-
 
 import { TIME_DURATION, FOLDERS, WATERMARK_PATH } from '../constants/ffmpeg.constant'
 
