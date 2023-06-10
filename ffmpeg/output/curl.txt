@@ -1,0 +1,1 @@
+curl -X POST -H "Content-Type: application/json"  -d '{"id1": "60b99df6-a5a3-4b92-936c-5dd1832e6cf6","id2": "9fb5295e-7677-4594-ba9e-ce38fcd53187"}'  http://localhost:5000/api/merge

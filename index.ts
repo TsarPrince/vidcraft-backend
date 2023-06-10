@@ -21,6 +21,7 @@ require("./routes/ffmpeg.route")(app);
 
 // Error handler middleware
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.log(err)
   if (err instanceof multer.MulterError) {
     // Multer error occurred (e.g., file size exceeds limit)
     res.status(400).json({ message: `File size limit exceeded. Individual file size should be less than ${MAX_FILE_SIZE} MBs.` });
