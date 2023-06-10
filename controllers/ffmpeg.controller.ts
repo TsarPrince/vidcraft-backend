@@ -7,6 +7,7 @@ import uploadVideo from '../utils/upload'
 import downloadVideo from '../utils/fetch'
 
 import { TIME_DURATION, FOLDERS, WATERMARK_PATH } from '../constants/ffmpeg.constant'
+import { execSync } from 'child_process'
 
 const SUPABASE_VIDEO_URL = process.env.SUPABASE_VIDEO_URL
 
@@ -37,83 +38,36 @@ const mergeVideo = async (req: Request, res: Response) => {
     const blob2 = await downloadVideo(id2)
     const buffer1 = Buffer.from(await blob1.arrayBuffer())
     const buffer2 = Buffer.from(await blob2.arrayBuffer())
-    filePath1 = join(FOLDERS.TEMP, 'file1.mp4')
-    filePath2 = join(FOLDERS.TEMP, 'file2.mp4')
+    filePath1 = 'file1.mp4'
+    filePath2 = 'file2.mp4'
     fs.writeFileSync(filePath1, buffer1)
     fs.writeFileSync(filePath2, buffer2)
 
-    const outputFile = 'PROCESSED-' + Date.now() + '-' + id1 + '-' + id2 + '.mp4'
-    outputPath = join(FOLDERS.OUTPUT, outputFile)
 
-    const promise = new Promise<string>((resolve, reject) => {
+    const shell_scrpit = [
+      `ffmpeg -i file1.mp4 -t ${TIME_DURATION} -video_track_timescale 60000 -vf "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,setsar=1" trimmed1.mp4 -y`,
+      `ffmpeg -i file2.mp4 -t ${TIME_DURATION} -video_track_timescale 60000 -vf "scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2,setsar=1" trimmed2.mp4 -y`,
+      `echo file 'trimmed1.mp4' > list.txt`,
+      `echo file 'trimmed2.mp4' >> list.txt`,
+      `ffmpeg -f concat -safe 0 -i list.txt -c copy merged.mp4 -y`,
+      `ffmpeg -i merged.mp4 -i ${WATERMARK_PATH} -filter_complex "overlay=x=(main_w-overlay_w-20):y=(main_h-overlay_h-20)" result.mp4 -y`,
+      `rm trimmed1.mp4`,
+      `rm trimmed2.mp4`,
+      `rm list.txt`,
+      `rm merged.mp4`
+    ]
 
-      // 1. trim videos
-      ffmpeg()
-        .input(filePath1)
-        .inputOptions([`-t ${TIME_DURATION}`, `-r 60000`])
-        .save(join(FOLDERS.TEMP, 'file11.mp4'))
-        .on('start', () => { console.log('trimming file1.mp4') })
-        .on('error', (err) => { reject(err) })
-        .on('end', () => {
-
-
-          console.log('trimming file2.mp4')
-          ffmpeg()
-            .input(filePath2)
-            .inputOptions([`-t ${TIME_DURATION}`, `-r 60000`])
-            .save(join(FOLDERS.TEMP, 'file22.mp4'))
-            .on('error', (err) => { reject(err) })
-            .on('end', () => {
-
-              // 2. merge videos
-              console.log('merging files')
-              const fileList = ['file11.mp4', 'file22.mp4']
-              const listFileName = join(FOLDERS.TEMP, 'list.txt')
-              let fileNames = ''
-
-              // ffmpeg -f concat -i list.txt -c copy output.mp4
-              fileList.forEach(function (fileName, _) {
-                fileNames = fileNames + 'file ' + '\'' + fileName + '\'\n'
-              })
-              fs.writeFileSync(listFileName, fileNames)
-              ffmpeg()
-                .input(listFileName)
-                .inputOptions(['-f concat', '-safe 0'])
-                .outputOptions('-c copy')
-                .save(join(FOLDERS.TEMP, 'file33.mp4'))
-                .on('error', (err) => { reject(err) })
-                .on('end', () => {
-
-
-                  // 3. add watermark
-                  console.log('applying watermark')
-                  ffmpeg()
-                    .input(join(FOLDERS.TEMP, 'file33.mp4'))
-                    .input(WATERMARK_PATH)
-                    .complexFilter([{
-                      filter: 'overlay', options: { x: 'main_w-overlay_w-20', y: 'main_h-overlay_h-20' },
-                      inputs: ['0:v', '1:v'], outputs: 'output'
-                    }], 'output')
-                    .save(outputPath)
-                    .on('error', (err) => { reject(err) })
-                    .on('end', async () => {
-
-                      // 4. Upload result to supabase storage
-                      console.log('uploading to supabase')
-                      const data = await uploadVideo(outputPath, outputFile, 'video/mp4')
-                      resolve(data.path)
-
-                      // 5. Delete files from temp folder
-                      fs.unlinkSync(join(FOLDERS.TEMP, 'file11.mp4'))
-                      fs.unlinkSync(join(FOLDERS.TEMP, 'file22.mp4'))
-                      fs.unlinkSync(join(FOLDERS.TEMP, 'file33.mp4'))
-                      console.log('DONE!')
-                    })
-                })
-            })
-        })
+    shell_scrpit.forEach(cmd => {
+      console.log(cmd)
+      execSync(cmd, { encoding: 'utf-8' })
     })
-    const path = await promise
+
+    outputPath = 'result.mp4'
+    const outputFile = 'PROCESSED-' + Date.now() + '-' + id1 + '-' + id2 + '.mp4'
+    console.log('uploading to supabase')
+    const { path } = await uploadVideo(outputPath, outputFile, 'video/mp4')
+
+    console.log('DONE!')
 
     const json: MergeVideoResponse = {
       message: 'Video processed successfully',
@@ -136,12 +90,8 @@ const mergeVideo = async (req: Request, res: Response) => {
     // delete files after merge
     try {
       fs.unlinkSync(outputPath)
-      fs.unlinkSync(filePath1)
-      fs.unlinkSync(filePath2)
     } catch (err) {
-      // one or more file may not exist at filePath
-      // in sequential order
-      // so we can safely ignore subsequent files and the error
+      console.log(err)
     }
   }
 }
