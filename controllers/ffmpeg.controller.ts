@@ -50,7 +50,7 @@ const mergeVideo = async (req: Request, res: Response) => {
       // 1. trim videos
       ffmpeg()
         .input(filePath1)
-        .inputOptions([`-t ${TIME_DURATION}`])
+        .inputOptions([`-t ${TIME_DURATION}`, `-r 60000`])
         .save(join(FOLDERS.TEMP, 'file11.mp4'))
         .on('start', () => { console.log('trimming file1.mp4') })
         .on('error', (err) => { reject(err) })
@@ -60,14 +60,14 @@ const mergeVideo = async (req: Request, res: Response) => {
           console.log('trimming file2.mp4')
           ffmpeg()
             .input(filePath2)
-            .inputOptions([`-t ${TIME_DURATION}`])
+            .inputOptions([`-t ${TIME_DURATION}`, `-r 60000`])
             .save(join(FOLDERS.TEMP, 'file22.mp4'))
             .on('error', (err) => { reject(err) })
             .on('end', () => {
 
               // 2. merge videos
               console.log('merging files')
-              const fileList = [join(FOLDERS.TEMP, 'file11.mp4'), join(FOLDERS.TEMP, 'file22.mp4')]
+              const fileList = ['file11.mp4', 'file22.mp4']
               const listFileName = join(FOLDERS.TEMP, 'list.txt')
               let fileNames = ''
 

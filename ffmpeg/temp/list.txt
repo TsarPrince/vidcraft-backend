@@ -1,2 +1,2 @@
-file 'ffmpeg\temp\file11.mp4'
-file 'ffmpeg\temp\file22.mp4'
+file 'file11.mp4'
+file 'file22.mp4'
